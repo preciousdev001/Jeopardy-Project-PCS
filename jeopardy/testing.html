@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+    <script>
+      async function testCall() {
+        const response = await axios.get(
+          "https://projects.springboard.com/jeopardy/api/categories?count=10"
+        );
+        console.log("Categories:", response.data);
+      }
+      testCall();
+    </script>
+  </body>
+</html>

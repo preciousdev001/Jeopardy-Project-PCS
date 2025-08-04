@@ -1,0 +1,71 @@
+/* some colors you may find useful:
+  #115ff4
+  #060ce9
+  #28a200
+  #8d2ab5
+  #74119c
+*/
+body {
+  background-color: #115ff4;
+}
+
+header {
+  background-color: #060ce9;
+  color: white;
+  text-align: center;
+  padding: 10px;
+}
+h1 {
+  font-size: 2.5em;
+  margin: 0;
+}
+
+#jeopardy {
+  text-align: center;
+  font-size: 9pt;
+  background-color: 060ce9;
+  color: white;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+#jeopardy th,
+#jeopardy td {
+  border: 1px solid white;
+  padding: 10px;
+  text-align: center;
+}
+#jeopardy td.disabled {
+  background-color: #8d2ab5;
+  color: white;
+}
+th {
+  text-transform: uppercase;
+  font-family: "Times New Roman", Times, serif;
+  font-weight: bold;
+  height: 4em;
+  text-shadow: darkgoldenrod 1px 1px 2px;
+}
+
+td {
+  height: 6em;
+  font-family: "Times New Roman", Times, serif;
+}
+
+button,
+td {
+  cursor: pointer;
+}
+
+#start:hover #start.disabled {
+  background-color: #74119c;
+}
+
+#spin-container {
+  display: none;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
