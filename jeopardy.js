@@ -25,6 +25,8 @@ let categories = [];
 const NUM_CATEGORIES = 6;
 const NUM_QUESTIONS_PER_CAT = 5;
 const startButton = document.getElementById("start");
+//for structure
+let gameGrid = [];
 /** Get NUM_CATEGORIES - random category from API.
  *
  * Returns array of category ids
@@ -105,18 +107,39 @@ async function getCategory(catId) {
 
 async function fillTable() {
   // clear what is previously there/existing content
-  $("thead").empty;
-  $("tbody").empty;
+  $("thead").empty();
+  $("tbody").empty();
+
+  categories.length = 0; //clear existing category array
+
+  // get random categories ids
+  const categoryIds = await getRandomCategoryIds();
+
+  //start structure - gameGrid
+
+  //get category info and data
+  for (const catId of categoryIds) {
+    const category = await getCategory(catId);
+    gameGrid.push(category.clues); //clues formatted in previous function
+  }
 
   //   bld table header
-  let $tr = $("<tr>");
+  const $headerRow = $("<tr>");
   for (let category of categories) {
-    $tr.append(`<th>${category.title}</th>`);
+    $headerRow.append(`<th>${category.title}</th>`);
   }
-  $("thead").append($tr);
+  $("thead").append($headerRow);
 
-  //   build table body;
-  //   for (let rowIdx = 0)
+  //   build table body with clue cells
+  for (let clueIdx = 0; clueIdx < NUM_QUESTIONS_PER_CAT; clueIdx++) {
+    const $tr = $("<tr>");
+    for (let catIdx = 0; catIdx < categories.length; catIdx++) {
+      $tr.append(
+        `<td class="clue-cell" data-category="${catIdx}" data-index="${clueIdx}">?</td>`
+      );
+    }
+    $("tbody").append($tr);
+  }
 }
 
 /** Handle clicking on a clue: show the question or answer.
@@ -126,18 +149,58 @@ async function fillTable() {
  * - if currently "question", show answer & set .showing to "answer"
  * - if currently "answer", ignore click
  * */
+//define click handler
+function handleClick(evt) {
+  const $cell = $(evt.target);
 
-function handleClick(evt) {}
+  //get clue idx from data
+  const catIdx = $cell.data("category");
+  const clueIdx = $cell.data("index");
 
+  //get clue object from data
+  const clue = gameGrid[catIdx][clueIdx];
+
+  //decide what to show based on what's shown
+  if (clue.showing === null) {
+    $cell.text(clue.question);
+    clue.showing = "question";
+  } else if (clue.showing === "question") {
+    $cell.text(clue.answer);
+    clue.showing = "answer";
+  } else {
+    //clue.showing === "answer" - do nothing
+    return;
+  }
+}
+
+//attach event listener once page loads
+$("tbody").on("click", ".clue-cell", handleClick);
+
+//retart button with a spinner loading
+$("#restart-btn").on("click", async function () {
+  showLoadingView();
+  await fillTable(); //rebuilds table w/new categories
+  hideLoadingView();
+});
 /** Wipe the current Jeopardy board, show the loading spinner,
  * and update the button used to fetch data.
  */
 
-function showLoadingView() {}
+function showLoadingView() {
+  $("restart-btn").prop("disabled", true); //refers to DOM - restart-btn
+  $("#btn-text").text("Loading new game...");
+  $("#spinner").show();
+  $("thead").html("<tr><th colspan='6'> Loading new game...</th></tr>");
+  $("tbody").empty();
+}
 
 /** Remove the loading spinner and update the button used to fetch data. */
 
-function hideLoadingView() {}
+function hideLoadingView() {
+  $("#restart-btn").prop("disabled", false);
+  $("#btn-text").text("Restart Game");
+  $("#spinner").hide();
+}
 
 /** Start game:
  *
@@ -147,8 +210,12 @@ function hideLoadingView() {}
  * */
 
 async function setupAndStart() {
-  const category = await getCategory(4);
-  console.log(category);
+  try {
+    await fillTable();
+  } catch (err) {
+    console.error("Error setting up game:", err);
+    $("thead").html("<tr><th colspan='6'>Failed to load game.</th></tr>");
+  }
 }
 
 startButton.addEventListener("click", setupAndStart);
